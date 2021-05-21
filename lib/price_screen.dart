@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'coin.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
@@ -8,7 +9,9 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = currenciesList.first;
-  List<DropdownMenuItem> getDropDownItem() {
+
+  //DropDownPicker for Android
+  Widget androidDropDown() {
     List<DropdownMenuItem<String>> dropDownItems = [];
     for (String currency in currenciesList) {
       var newItem = DropdownMenuItem(
@@ -17,12 +20,34 @@ class _PriceScreenState extends State<PriceScreen> {
       );
       dropDownItems.add(newItem);
     }
-    return dropDownItems;
+    return DropdownButton<String>(
+        value: selectedCurrency,
+        items: dropDownItems,
+        onChanged: (value) {
+          setState(() {
+            selectedCurrency = value;
+          });
+        });
   }
+   //Drop Down Picker for IOS
+  Widget iosPicker() {
+    List<Text> textList = [];
+    for (String currency in currenciesList) {
+      var textItem = Text(currency);
+      textList.add(textItem);
+    }
+    return CupertinoPicker(
+      itemExtent: 35.0,
+      onSelectedItemChanged: (value) {
+        print(value);
+      },
+      children: textList,
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    getDropDownItem();
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('🤑 Coin Ticker')),
@@ -58,17 +83,11 @@ class _PriceScreenState extends State<PriceScreen> {
             height: 150,
             color: Colors.lightBlueAccent,
             padding: EdgeInsets.only(bottom: 30.0),
-            child: DropdownButton<String>(
-                value: selectedCurrency,
-                items: getDropDownItem(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCurrency = value;
-                  });
-                }),
+            child: Platform.isIOS? iosPicker() : androidDropDown(),
           ),
         ],
       ),
     );
   }
 }
+
