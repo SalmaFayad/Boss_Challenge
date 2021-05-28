@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'coin.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
+
+
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String selectedCurrency = currenciesList.first;
+  String selectedCurrency = 'USD';
 
   //DropDownPicker for Android
   Widget androidDropDown() {
@@ -39,12 +41,30 @@ class _PriceScreenState extends State<PriceScreen> {
     return CupertinoPicker(
       itemExtent: 35.0,
       onSelectedItemChanged: (value) {
-        print(value);
+        setState(() {
+          //selectedCurrency = value;
+        });
       },
       children: textList,
     );
   }
-
+  String bitCoinValueInUSD= '?';
+  Future getData()async{
+    try {
+      double data = await CoinData().getCoinData();
+      setState(() {
+        bitCoinValueInUSD=data.toStringAsFixed(0);
+      });
+    }catch(e){
+      print(e);
+    }
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +88,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 padding: const EdgeInsets.symmetric(
                     vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 $selectedCurrency = $bitCoinValueInUSD USD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
