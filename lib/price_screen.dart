@@ -28,6 +28,7 @@ class _PriceScreenState extends State<PriceScreen> {
         onChanged: (value) {
           setState(() {
             selectedCurrency = value;
+            getData();
           });
         });
   }
@@ -40,20 +41,22 @@ class _PriceScreenState extends State<PriceScreen> {
     }
     return CupertinoPicker(
       itemExtent: 35.0,
-      onSelectedItemChanged: (value) {
+      onSelectedItemChanged: (selectedIndex) {
         setState(() {
-          //selectedCurrency = value;
+         print(selectedIndex);
+         selectedCurrency=currenciesList[selectedIndex];
+         getData();
         });
       },
       children: textList,
     );
   }
-  String bitCoinValueInUSD= '?';
+  String bitCoinValue= '?';
   Future getData()async{
     try {
-      double data = await CoinData().getCoinData();
+      double data = await CoinData().getCoinData(selectedCurrency);
       setState(() {
-        bitCoinValueInUSD=data.toStringAsFixed(0);
+        bitCoinValue=data.toStringAsFixed(0);
       });
     }catch(e){
       print(e);
@@ -74,8 +77,52 @@ class _PriceScreenState extends State<PriceScreen> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 18 ,left: 18,right: 18),
+            child: Card(
+              color: Colors.lightBlueAccent,
+              elevation: 5.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 28.0),
+                child: Text(
+                  '1 BTC= $bitCoinValue $selectedCurrency',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+          padding: const EdgeInsets.only(top: 18 ,left: 18,right: 18),
+            child: Card(
+              color: Colors.lightBlueAccent,
+              elevation: 5.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 28.0),
+                child: Text(
+                  '1 BTC= $bitCoinValue $selectedCurrency',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
             child: Card(
@@ -88,7 +135,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 padding: const EdgeInsets.symmetric(
                     vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 $selectedCurrency = $bitCoinValueInUSD USD',
+                  '1 BTC= $bitCoinValue $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -98,12 +145,15 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
             ),
           ),
-          Container(
-            alignment: Alignment.center,
-            height: 150,
-            color: Colors.lightBlueAccent,
-            padding: EdgeInsets.only(bottom: 30.0),
-            child: Platform.isIOS? iosPicker() : androidDropDown(),
+          Padding(
+            padding: const EdgeInsets.only(top: 200),
+            child: Container(
+              alignment: Alignment.center,
+              height: 150,
+              color: Colors.lightBlueAccent,
+              padding: EdgeInsets.only(bottom: 30.0),
+              child: Platform.isIOS? iosPicker() : androidDropDown(),
+            ),
           ),
         ],
       ),
