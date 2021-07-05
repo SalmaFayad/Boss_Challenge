@@ -28,7 +28,9 @@ class _PriceScreenState extends State<PriceScreen> {
         onChanged: (value) {
           setState(() {
             selectedCurrency = value;
-            getData();
+            getDataInBTC();
+            getDataInETH();
+            getDataInLTC();
           });
         });
   }
@@ -45,18 +47,42 @@ class _PriceScreenState extends State<PriceScreen> {
         setState(() {
          print(selectedIndex);
          selectedCurrency=currenciesList[selectedIndex];
-         getData();
+         getDataInBTC();
+         getDataInETH();
+         getDataInLTC();
         });
       },
       children: textList,
     );
   }
-  String bitCoinValue= '?';
-  Future getData()async{
+  String bitCoinInBTC= '?';
+  String bitCoinInETH= '?';
+  String bitCoinInLTC= '?';
+  Future getDataInBTC()async{
     try {
-      double data = await CoinData().getCoinData(selectedCurrency);
+      double data = await CoinData().getCoinBTCData(selectedCurrency);
       setState(() {
-        bitCoinValue=data.toStringAsFixed(0);
+        bitCoinInBTC=data.toStringAsFixed(0);
+      });
+    }catch(e){
+      print(e);
+    }
+  }
+  Future getDataInETH()async{
+    try {
+      double data = await CoinData().getCoinETHData(selectedCurrency);
+      setState(() {
+        bitCoinInETH=data.toStringAsFixed(0);
+      });
+    }catch(e){
+      print(e);
+    }
+  }
+  Future getDataInLTC()async{
+    try {
+      double data = await CoinData().getCoinLTC(selectedCurrency);
+      setState(() {
+        bitCoinInLTC=data.toStringAsFixed(0);
       });
     }catch(e){
       print(e);
@@ -66,7 +92,9 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getData();
+    getDataInBTC();
+    getDataInETH();
+    getDataInLTC();
   }
 
   @override
@@ -91,7 +119,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 padding: const EdgeInsets.symmetric(
                     vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC= $bitCoinValue $selectedCurrency',
+                  '1 BTC= $bitCoinInBTC $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -113,7 +141,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 padding: const EdgeInsets.symmetric(
                     vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC= $bitCoinValue $selectedCurrency',
+                  '1 ETH= $bitCoinInETH $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -135,7 +163,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 padding: const EdgeInsets.symmetric(
                     vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC= $bitCoinValue $selectedCurrency',
+                  '1 LTC= $bitCoinInLTC $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,

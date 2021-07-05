@@ -31,9 +31,35 @@ const List<String> cryptoList = [
 const apiId='C095C839-BBBA-400D-805D-CAA434B4DB6F';
 const coinAPIURL ='https://rest.coinapi.io/v1/exchangerate';
 class CoinData {
-  Future getCoinData(String selectedCurrency) async {
+  Future getCoinBTCData(String selectedCurrency) async {
     http.Response response = await http.get(Uri.parse(
         '$coinAPIURL/BTC/$selectedCurrency?apikey=$apiId'));
+    if (response.statusCode == 200) {
+      String data = response.body;
+      var decodedData = jsonDecode(data);
+      var lastPrice = decodedData['rate'];
+      return lastPrice;
+    } else {
+      print(response.statusCode);
+      throw 'Problem with the get request'; //an error if the request fails
+    }
+  }
+  Future getCoinETHData(String selectedCurrency) async {
+    http.Response response = await http.get(Uri.parse(
+        '$coinAPIURL/ETH/$selectedCurrency?apikey=$apiId'));
+    if (response.statusCode == 200) {
+      String data = response.body;
+      var decodedData = jsonDecode(data);
+      var lastPrice = decodedData['rate'];
+      return lastPrice;
+    } else {
+      print(response.statusCode);
+      throw 'Problem with the get request'; //an error if the request fails
+    }
+  }
+  Future getCoinLTC(String selectedCurrency) async {
+    http.Response response = await http.get(Uri.parse(
+        '$coinAPIURL/LTC/$selectedCurrency?apikey=$apiId'));
     if (response.statusCode == 200) {
       String data = response.body;
       var decodedData = jsonDecode(data);
