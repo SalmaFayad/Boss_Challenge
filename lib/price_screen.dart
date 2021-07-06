@@ -3,7 +3,6 @@ import 'coin.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 
-
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
@@ -28,13 +27,11 @@ class _PriceScreenState extends State<PriceScreen> {
         onChanged: (value) {
           setState(() {
             selectedCurrency = value;
-            getDataInBTC();
-            getDataInETH();
-            getDataInLTC();
           });
         });
   }
-   //Drop Down Picker for IOS
+
+  //Drop Down Picker for IOS
   Widget iosPicker() {
     List<Text> textList = [];
     for (String currency in currenciesList) {
@@ -45,56 +42,36 @@ class _PriceScreenState extends State<PriceScreen> {
       itemExtent: 35.0,
       onSelectedItemChanged: (selectedIndex) {
         setState(() {
-         print(selectedIndex);
-         selectedCurrency=currenciesList[selectedIndex];
-         getDataInBTC();
-         getDataInETH();
-         getDataInLTC();
+          print(selectedIndex);
+          selectedCurrency = currenciesList[selectedIndex];
         });
       },
       children: textList,
     );
   }
-  String bitCoinInBTC= '?';
-  String bitCoinInETH= '?';
-  String bitCoinInLTC= '?';
-  Future getDataInBTC()async{
+
+  //create a map to hold coin values from api
+  Map<String, String> coinValues = {};
+  // is waiting check if the request has complete or not ,initially not
+  bool isWaiting = false;
+  Future getData() async {
     try {
-      double data = await CoinData().getCoinBTCData(selectedCurrency);
+      isWaiting = true; //start
+      var data = await CoinData().getCoinData(selectedCurrency);
+      isWaiting = false; //end
       setState(() {
-        bitCoinInBTC=data.toStringAsFixed(0);
+        coinValues = data;
       });
-    }catch(e){
+    } catch (e) {
       print(e);
     }
   }
-  Future getDataInETH()async{
-    try {
-      double data = await CoinData().getCoinETHData(selectedCurrency);
-      setState(() {
-        bitCoinInETH=data.toStringAsFixed(0);
-      });
-    }catch(e){
-      print(e);
-    }
-  }
-  Future getDataInLTC()async{
-    try {
-      double data = await CoinData().getCoinLTC(selectedCurrency);
-      setState(() {
-        bitCoinInLTC=data.toStringAsFixed(0);
-      });
-    }catch(e){
-      print(e);
-    }
-  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getDataInBTC();
-    getDataInETH();
-    getDataInLTC();
+    getData();
   }
 
   @override
@@ -105,83 +82,27 @@ class _PriceScreenState extends State<PriceScreen> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 18 ,left: 18,right: 18),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC= $bitCoinInBTC $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-            ),
+          CryptoCard(
+            value: isWaiting ? '?' : coinValues['BTC'],
+            selectedCurrency: selectedCurrency,
+            cryptoSelected: 'BTC',
           ),
-          Padding(
-          padding: const EdgeInsets.only(top: 18 ,left: 18,right: 18),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 ETH= $bitCoinInETH $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 LTC= $bitCoinInLTC $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 200),
-            child: Container(
-              alignment: Alignment.center,
-              height: 150,
-              color: Colors.lightBlueAccent,
-              padding: EdgeInsets.only(bottom: 30.0),
-              child: Platform.isIOS? iosPicker() : androidDropDown(),
-            ),
+          CryptoCard(
+              value: isWaiting ? '?' : coinValues['ETH'],
+              selectedCurrency: selectedCurrency,
+              cryptoSelected: 'ETH'),
+          CryptoCard(
+              value: isWaiting ? '?' : coinValues['LTC'],
+              selectedCurrency: selectedCurrency,
+              cryptoSelected: 'LTC'),
+          Container(
+            alignment: Alignment.center,
+            height: 150,
+            color: Colors.lightBlueAccent,
+            padding: EdgeInsets.only(bottom: 30.0),
+            child: Platform.isIOS ? iosPicker() : androidDropDown(),
           ),
         ],
       ),
@@ -189,3 +110,40 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 }
 
+class CryptoCard extends StatelessWidget {
+  const CryptoCard({
+    Key key,
+    @required this.value,
+    @required this.selectedCurrency,
+    @required this.cryptoSelected,
+  }) : super(key: key);
+
+  final String value;
+  final String selectedCurrency;
+  final String cryptoSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+      child: Card(
+        color: Colors.lightBlueAccent,
+        elevation: 5.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+          child: Text(
+            '1 $cryptoSelected= $value $selectedCurrency',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
